@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="97">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="addons"
+                   displayName="addons"
+                   projectFiles="true"
+                   root="../../../addons">
+      <logicalFolder name="ofxGui" displayName="ofxGui" projectFiles="true">
+        <logicalFolder name="src" displayName="src" projectFiles="true">
+          <itemPath>../../../addons/ofxGui/src/ofxBaseGui.cpp</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxBaseGui.h</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxButton.cpp</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxButton.h</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxGuiGroup.cpp</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxGuiGroup.h</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxLabel.cpp</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxLabel.h</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxPanel.cpp</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxPanel.h</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxSlider.cpp</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxSlider.h</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxSliderGroup.cpp</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxSliderGroup.h</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxToggle.cpp</itemPath>
+          <itemPath>../../../addons/ofxGui/src/ofxToggle.h</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="ofxNetwork" displayName="ofxNetwork" projectFiles="true">
+        <logicalFolder name="src" displayName="src" projectFiles="true">
+          <itemPath>../../../addons/ofxNetwork/src/ofxNetwork.h</itemPath>
+          <itemPath>../../../addons/ofxNetwork/src/ofxNetworkUtils.h</itemPath>
+          <itemPath>../../../addons/ofxNetwork/src/ofxTCPClient.cpp</itemPath>
+          <itemPath>../../../addons/ofxNetwork/src/ofxTCPClient.h</itemPath>
+          <itemPath>../../../addons/ofxNetwork/src/ofxTCPManager.cpp</itemPath>
+          <itemPath>../../../addons/ofxNetwork/src/ofxTCPManager.h</itemPath>
+          <itemPath>../../../addons/ofxNetwork/src/ofxTCPServer.cpp</itemPath>
+          <itemPath>../../../addons/ofxNetwork/src/ofxTCPServer.h</itemPath>
+          <itemPath>../../../addons/ofxNetwork/src/ofxUDPManager.cpp</itemPath>
+          <itemPath>../../../addons/ofxNetwork/src/ofxUDPManager.h</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+    </logicalFolder>
+    <df root="." name="0">
+      <df name="src">
+        <in>GUI.cpp</in>
+        <in>hytky.cpp</in>
+        <in>main.cpp</in>
+        <in>ofApp.cpp</in>
+        <in>simpleServer.cpp</in>
+        <in>vector2.cpp</in>
+      </df>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+      <itemPath>nbproject/private/launcher.properties</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <flagsDictionary>
+        <element flagsID="0" commonFlags="-O3 -march=native -mtune=native -std=c++14"/>
+      </flagsDictionary>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>bin/hytky</executablePath>
+          <ccTool>
+            <incDir>
+              <pElem>/usr/include/gstreamer-1.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/gstreamer-1.0/include</pElem>
+              <pElem>/usr/include/AL</pElem>
+              <pElem>/usr/include/libdrm</pElem>
+              <pElem>/usr/include/gtk-3.0</pElem>
+              <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+              <pElem>/usr/include/at-spi-2.0</pElem>
+              <pElem>/usr/include/dbus-1.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+              <pElem>/usr/include/gio-unix-2.0</pElem>
+              <pElem>/usr/include/mirclient</pElem>
+              <pElem>/usr/include/mircommon</pElem>
+              <pElem>/usr/include/mircookie</pElem>
+              <pElem>/usr/include/cairo</pElem>
+              <pElem>/usr/include/pango-1.0</pElem>
+              <pElem>/usr/include/harfbuzz</pElem>
+              <pElem>/usr/include/atk-1.0</pElem>
+              <pElem>/usr/include/pixman-1</pElem>
+              <pElem>/usr/include/freetype2</pElem>
+              <pElem>/usr/include/libpng12</pElem>
+              <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+              <pElem>/usr/include/glib-2.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>../../../libs/fmodex/include</pElem>
+              <pElem>../../../libs/glfw/include</pElem>
+              <pElem>../../../libs/glfw/include/GLFW</pElem>
+              <pElem>../../../libs/kiss/include</pElem>
+              <pElem>../../../libs/poco/include</pElem>
+              <pElem>../../../libs/tess2/include</pElem>
+              <pElem>../../../libs/utf8cpp/include</pElem>
+              <pElem>../../../libs/utf8cpp/include/utf8</pElem>
+              <pElem>../../../libs/openFrameworks</pElem>
+              <pElem>../../../libs/openFrameworks/graphics</pElem>
+              <pElem>../../../libs/openFrameworks/3d</pElem>
+              <pElem>../../../libs/openFrameworks/events</pElem>
+              <pElem>../../../libs/openFrameworks/sound</pElem>
+              <pElem>../../../libs/openFrameworks/communication</pElem>
+              <pElem>../../../libs/openFrameworks/utils</pElem>
+              <pElem>../../../libs/openFrameworks/types</pElem>
+              <pElem>../../../libs/openFrameworks/gl</pElem>
+              <pElem>../../../libs/openFrameworks/math</pElem>
+              <pElem>../../../libs/openFrameworks/app</pElem>
+              <pElem>../../../libs/openFrameworks/video</pElem>
+            </incDir>
+            <preprocessorList>
+              <Elem>GCC_HAS_REGEX</Elem>
+              <Elem>NDEBUG</Elem>
+              <Elem>OF_USING_GTK</Elem>
+            </preprocessorList>
+          </ccTool>
+        </makeTool>
+        <preBuild>
+          <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
+          <preBuildCommand></preBuildCommand>
+        </preBuild>
+      </makefileType>
+      <item path="../../../addons/ofxGui/src/ofxBaseGui.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxGui/src/ofxButton.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxGui/src/ofxGuiGroup.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxGui/src/ofxLabel.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxGui/src/ofxPanel.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxGui/src/ofxSlider.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxGui/src/ofxSliderGroup.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxGui/src/ofxToggle.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxNetwork/src/ofxTCPClient.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxNetwork/src/ofxTCPManager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxNetwork/src/ofxTCPServer.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="../../../addons/ofxNetwork/src/ofxUDPManager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <folder path="0">
+        <ccTool>
+          <incDir>
+            <pElem>0</pElem>
+            <pElem>1</pElem>
+            <pElem>src</pElem>
+            <pElem>nbproject</pElem>
+            <pElem>nbproject/private</pElem>
+            <pElem>../../../addons/ofxGui/src</pElem>
+            <pElem>../../../addons/ofxNetwork/src</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="addons">
+        <ccTool>
+          <incDir>
+            <pElem>../../../addons/ofxGui/src</pElem>
+            <pElem>../../../addons/ofxNetwork/src</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <item path="src/GUI.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="src/hytky.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="src/main.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="src/ofApp.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="src/simpleServer.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="src/vector2.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
