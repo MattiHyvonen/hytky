@@ -61,28 +61,83 @@ vec2 circle::vektoriSisaltaReunalle(const vec2& p) {
 
 
 //hytkyjen globaalit ominaisuudet:
-vec2    hytky::gravity      = vec2(0,0);
+vec2    hytky::gravity      = vec2(0,1);
 int     hytky::physicsIterations = 10;
 rectangle hytky::huone      = rectangle(-200, -150, 400, 300);
 const float hytky::halkaisija   = 150;
 
 
+void hytky::luoJouset(int layers) {
+    
+    if(layers > 4) layers = 4;
+    if(layers < 1) layers = 1;
+        
+    float halkaisijaPisteina = 2 * hytkynSivu - 1;
+    float pistevali = halkaisija / halkaisijaPisteina;
+    
+    float margin = 0.05;
+    float initial_k = 1;
+    
+    float r[4];
+    r[0] = pistevali;
+    r[1] = pistevali * sqrt(3);
+    r[2] = pistevali * 2;
+    r[3] = pistevali * sqrt(7);
+    
+    for(int l = 0; l < layers; l++) {
+            
+        std::vector<jousi> uusiLayer;
+        
+        float r_min = r[l] - margin;
+        float r_max = r[l] + margin;
+        
+        std::cout << r_min << ", " << r_max << "\n";
+        
+        for(int i=0; i< pisteet.size(); i++) {
+            for(int j=0; j<pisteet.size(); j++) {
+                if(i==j) continue;
 
-hytky::hytky(int sivu, float lujuus) : hytkynSivu(sivu) {
+                //jos pisteet ovat tarpeeksi lähellä, lisätään niiden välille jousi
+                float ero = (pisteet[j].paikka - pisteet[i].paikka).length();
+                if(ero < r_max && ero > r_min )  {
+                    
+                    //tarkistetaan onko jo olemassa sellainen jousi, jonka päinä nämä pisteet ovat
+                    bool found = false;
+                    for(int jousi_i = 0; jousi_i < uusiLayer.size() && !found; jousi_i++) {
+                        if(uusiLayer[jousi_i].pisteet[0] == &(pisteet[i]) && uusiLayer[jousi_i].pisteet[1] == &(pisteet[j]) )
+                            found = true;
+                        else if(uusiLayer[jousi_i].pisteet[1] == &(pisteet[i]) && uusiLayer[jousi_i].pisteet[0] == &(pisteet[j]) )
+                            found = true;
+                    }
+                    //jos jousta ei ollut, luodaan se
+                    if(!found) {
+                        uusiLayer.push_back(jousi(pisteet[i], pisteet[j], initial_k) ); //TODO: jousivakiosta (initial_k) säädettävä parametri
+                    }
+                }
+            }
+            
+        }
+        jouset.push_back(uusiLayer);
+        std::cout << "Luotiin kerros " << l << ", " << uusiLayer.size() << " jousta\n";
+    }
+
+    for(int i= 0; i<pisteet.size(); i++)
+        keskiJouset.push_back(jousi(pisteet[i], initialPoints[i], initial_k * 0.01));
+    
+
+}
+
+
+hytky::hytky(int sivu, int springLayers_) : hytkynSivu(sivu), springLayers(springLayers_) {
     
     repulsor = circle(0,0,50);
     
     if(hytkynSivu < 0) hytkynSivu = 0;
     
     int halkaisijaPisteina = 2 * hytkynSivu - 1;
-    float pistevali = halkaisija / halkaisijaPisteina;    
-    hytky::piste::paine_r = halkaisija * 0.2; //TODO: tämä kerroin muuttujaksi!
-    springLayers = halkaisija * lujuus; //lujuus 1 tarkoittaa että jouset yltävät läpi kappaleen
-    
-    float initial_k = 2.5;
-    
-    if(springLayers < pistevali + 0.01) springLayers = pistevali + 0.01; //jousten pitää yltää vähintään viereisiin pisteisiin
-    
+    float pistevali = halkaisija / halkaisijaPisteina;
+    hytky::piste::paine_r = halkaisija * 0.2; //TODO: tämä kerroin muuttujaksi!    
+           
     //luodaan pisteet:    
     int rivinPituus = hytkynSivu;
     float pystyvali = sqrt(3)/2;
@@ -113,31 +168,8 @@ hytky::hytky(int sivu, float lujuus) : hytkynSivu(sivu) {
     
     
     //luodaan jouset
-    for(int i=0; i< pisteet.size(); i++) {
-        for(int j=0; j<pisteet.size(); j++) {
-            if(i==j) continue;
-            
-            //jos pisteet ovat tarpeeksi lähellä, lisätään niiden välille jousi
-            if( (pisteet[j].paikka - pisteet[i].paikka).length() < springLayers ) {
-                //tarkistetaan onko jo olemassa sellainen jousi, jonka päinä nämä pisteet ovat
-                bool found = false;
-                for(int jousi_i = 0; jousi_i < jouset.size() && !found; jousi_i++) {
-                    if(jouset[jousi_i].pisteet[0] == &(pisteet[i]) && jouset[jousi_i].pisteet[1] == &(pisteet[j]) )
-                        found = true;
-                    else if(jouset[jousi_i].pisteet[1] == &(pisteet[i]) && jouset[jousi_i].pisteet[0] == &(pisteet[j]) )
-                        found = true;
-                }
-                //jos jousta ei ollut, luodaan se
-                if(!found) {
-                    jouset.push_back(jousi(pisteet[i], pisteet[j], initial_k) ); //TODO: jousivakiosta (initial_k) säädettävä parametri
-                    std::cout << "luotiin jousi " << jouset.size() << "\n";
-                }
-            }
-        }
-        keskiJouset.push_back(jousi(pisteet[i], initialPoints[i], initial_k * 0.05));
-    }
+    luoJouset(springLayers);
 
-    std::cout << "Luotiin " << pisteet.size() << " pistettä, " << jouset.size() << " jousta\n";
 }
 
 
@@ -151,10 +183,40 @@ int hytky::size() {
 }
 
 
+int hytky::joustenMaara(int layer) {
+    return jouset[layer].size();
+}
+    
+vec2 hytky::haeJousenAlku(int i, int layer){
+    return jouset[layer][i].pisteet[0]->paikka;
+}
+
+vec2 hytky::haeJousenLoppu(int i, int layer){
+    return jouset[layer][i].pisteet[1]->paikka;
+}
+
+
+void hytky::asetaJousivakio(float new_k) {
+
+    float k_per_l = new_k / (float)jouset.size();
+    
+    for(int layer = 0; layer < jouset.size(); layer++) {
+        for(int i=0; i<jouset[layer].size(); i++) {
+            
+            //float k = k_per_l * (jouset.size() - layer);
+            float k = new_k;
+            jouset[layer][i].jousivakio = k;
+            std::cout << "set stiffness " << layer << " : " << k << "\n";
+        }
+    }
+}
+
+
+
 void hytky::step() {
     
     //joka askeleella tehdään oikeasti monta askelta eli iteraatiota:    
-    for(int it = 0; it < physicsIterations; it++) {   
+    for(int it = 0; it < physicsIterations; it++) {
 
         //Lasketaan kaikki pisteisiin vaikuttavat voimat
         for(unsigned int i = 0; i < pisteet.size(); i++) {
@@ -169,11 +231,13 @@ void hytky::step() {
             }
         }
         
-        for(unsigned int i = 0; i < jouset.size(); i++ )
-            jouset[i].laskeVoimat();
+        for(unsigned int i = 0; i < jouset.size(); i++) {
+            for(unsigned int j = 0; j < jouset[i].size(); j++)
+                jouset[i][j].laskeVoimat();
+        }
        
         for(unsigned int i=0; i<keskiJouset.size(); i++)
-            keskiJouset[i].laskeVoimat();
+            keskiJouset[i].laskeVoimat();        
         
         
         //liikutetaan kaikkia pisteitä voimien perusteella
@@ -191,13 +255,13 @@ std::string hytky::kerro() {
     float keskiarvo = 0;
     float varianssi = 0;
     
-    for(int i=0; i<jouset.size(); i++) {
-        float stress = jouset[i].getStress();
+    for(int i=0; i < jouset[0].size(); i++) {
+        float stress = jouset[0][i].getStress();
         keskiarvo += stress;
         varianssi += pow(stress - viime_keskiarvo, 2);
     }
-    keskiarvo = keskiarvo / jouset.size();
-    varianssi = varianssi / jouset.size();
+    keskiarvo = keskiarvo / jouset[0].size();
+    varianssi = varianssi / jouset[0].size();
     viime_keskiarvo = keskiarvo;
     
     viimeArvot[laskuri] = keskiarvo;

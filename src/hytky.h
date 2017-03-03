@@ -38,8 +38,10 @@ private:
     std::vector<piste> pisteet; //kaikki hytkyn partikkelit
     std::vector<piste> initialPoints;
     
-    std::vector<jousi> jouset; //kaikki pisteiden välillä olevat jouset
-    std::vector<jousi> keskiJouset; //jouset jotka pitävät hytkyä paikoillaan
+    std::vector<std::vector<jousi> > jouset; //kaikki pisteiden välillä olevat jouset
+    std::vector<jousi> keskiJouset; //jouset jotka pitävät hytkyä keskellä
+    
+    void luoJouset(int layers = 1);
        
 public:
 
@@ -51,14 +53,21 @@ public:
     
     //Hytkykohtaiset ominaisuudet:
     float hytkynSivu; //montako partikkelia per sivu; hytky on kuusikulmainen
-    float springLayers; //miten sikinsokin pisteiden väliset jouset yhdistyvät -- vaikuttaa aineen lujuutta lisäävästi.
+    int springLayers; //miten monta kerrosta jousia on -- vaikuttaa aineen lujuutta lisäävästi.
     
     circle repulsor;
     
-    hytky(int sivu = 4, float lujuus = 0); //sivu: montako pistettä per sivu, kun hytky on kuusikulmainen
+    hytky(int sivu = 4, int springLayers_ = 1); //sivu: montako pistettä per sivu, kun hytky on kuusikulmainen
 
     vec2 at(int i); //hae pisteen sijainti indeksin mukaan
     int size(); //pisteiden määrä hytkyssä
+    
+    int joustenMaara(int layer = 0);
+    
+    vec2 haeJousenAlku(int i, int layer=0);
+    vec2 haeJousenLoppu(int i, int layer=0);
+    
+    void asetaJousivakio(float new_k);
       
     void step(); //laske voimat ja liikuta pisteitä
     std::string kerro(); //palauttaa tietoja

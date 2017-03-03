@@ -5,6 +5,15 @@
 #include "GUI.h"
 #include "simpleServer.h"
 
+class randomPalette{ 
+public:
+    static const int MAX_COLORS = 50;
+    std::vector<ofColor > colors;
+    ofColor getColor(int i);
+    ofColor getNewColor();
+};
+
+
 class ofApp : public ofBaseApp {
 	public:
                 ofApp();
@@ -38,5 +47,8 @@ class ofApp : public ofBaseApp {
                 GUI hytky_GUI;
                 bool GUI_shown = false;
                 simpleServer server;
+                
+                randomPalette paletti;
+                int drawnLayer = 0;
 
 };

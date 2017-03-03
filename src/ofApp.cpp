@@ -3,6 +3,23 @@
 #include <string>
 
 
+ofColor randomPalette::getColor(int i) {
+    if(i > MAX_COLORS) i = MAX_COLORS;
+    
+    while(i >= colors.size() ) {
+        colors.push_back(ofColor(ofRandom(255),ofRandom(255),ofRandom(255) ) );
+        std::cout << "created color " << colors.size()-1 << "\n";
+    }
+    return colors[i];
+}
+
+
+ofColor randomPalette::getNewColor() {
+    colors.push_back(ofColor(ofRandom(255),ofRandom(255),ofRandom(255) ) );
+    return colors.back();
+}
+
+
 std::string getFilename() {
     static int frame_n = 0;
     
@@ -13,18 +30,20 @@ std::string getFilename() {
 }
 
 
-ofApp::ofApp() : H(8, 0.2),
+ofApp::ofApp() : H(8, 4),
         cursor_pos(0,0), cursor_target(0,0), 
         hytky_pos(ofGetWidth() / 2, ofGetHeight() /2) {
     
-    hytky_scale = (float)(ofGetHeight()-100) / (hytky::huone.h);     
+    hytky_scale = (float)(ofGetHeight()-100) / (hytky::huone.h);
 }
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetBackgroundColor(0, 150, 0);
+    ofSetBackgroundColor(0, 0, 0);
     hytky_GUI.setup();
     server.setup();
+    
+    H.asetaJousivakio(10);    
 }
 
 //--------------------------------------------------------------
@@ -73,15 +92,30 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
         
-    ofSetColor(50,100,200);
+    ofSetColor(20,50,100);
     ofDrawCircle(cursor_pos.x, cursor_pos.y, 100);
+       
+    //piirretään jouset
+    int layer = drawnLayer;
+    ofSetColor(paletti.getColor(layer));
+    for(int j=0; j<H.joustenMaara(layer) ; j++) {
+        vec2 alku = H.haeJousenAlku(j, layer);
+        vec2 loppu = H.haeJousenLoppu(j, layer);
+
+        ofDrawLine(alku.x * hytky_scale + hytky_pos.x, 
+                alku.y * hytky_scale + hytky_pos.y, 
+                loppu.x * hytky_scale + hytky_pos.x, 
+                loppu.y * hytky_scale + hytky_pos.y);
+    }
     
-    ofSetColor(255,200,150);
+    ofSetColor(255,200,150);  
     
+    //piirretään pisteet
     for(int i=0; i<H.size(); i++) {
         vec2 p = H.at(i);
         ofDrawCircle(p.x * hytky_scale + hytky_pos.x, p.y * hytky_scale + hytky_pos.y, hytky_scale * 1.5);
     }
+    
     if(recording) {
         frame.grabScreen(0,0,ofGetWidth(), ofGetHeight() );
         frame.save(getFilename());
@@ -112,6 +146,12 @@ void ofApp::keyPressed(int key){
     
     if(key=='r')
         recording = !recording;
+    
+    else if(key == '+') {
+        drawnLayer ++;
+        if(drawnLayer >= H.springLayers)
+            drawnLayer = 0;
+    }
     
 }
 
