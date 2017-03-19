@@ -226,8 +226,6 @@
       <folder path="0">
         <ccTool>
           <incDir>
-            <pElem>0</pElem>
-            <pElem>1</pElem>
             <pElem>src</pElem>
             <pElem>nbproject</pElem>
             <pElem>nbproject/private</pElem>

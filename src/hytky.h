@@ -51,6 +51,8 @@ public:
     static rectangle huone; //hytky on huoneessa
     static const float halkaisija; //miten iso hytky on fysikaalisessa tilassa
     
+    bool extending = true; //pullistetaanko vai rutistetaanko
+    
     //Hytkykohtaiset ominaisuudet:
     float hytkynSivu; //montako partikkelia per sivu; hytky on kuusikulmainen
     int springLayers; //miten monta kerrosta jousia on -- vaikuttaa aineen lujuutta lisäävästi.
@@ -107,9 +109,12 @@ public:
     jousi(piste& alku, piste& loppu, float k = 1);
     
     float jousivakio;
-    float lepopituus;    
+    float lepopituus;
+    float ekstensio;
     
     float getStress();    
+    void extend(float amount = 0.05);
+    void relax(float amount = 0.01);
     
     void laskeVoimat(); // vaikuttaa pisteisiin
 };

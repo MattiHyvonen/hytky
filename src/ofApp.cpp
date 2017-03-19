@@ -7,8 +7,8 @@ ofColor randomPalette::getColor(int i) {
     if(i > MAX_COLORS) i = MAX_COLORS;
     
     while(i >= colors.size() ) {
-        colors.push_back(ofColor(ofRandom(255),ofRandom(255),ofRandom(255) ) );
-        std::cout << "created color " << colors.size()-1 << "\n";
+        colors.push_back(ofColor(ofRandom(50, 255),ofRandom(50, 255),ofRandom(50, 255) ) );
+        //std::cout << "created color " << colors.size()-1 << "\n";
     }
     return colors[i];
 }
@@ -30,7 +30,7 @@ std::string getFilename() {
 }
 
 
-ofApp::ofApp() : H(8, 4),
+ofApp::ofApp() : H(4, 2),
         cursor_pos(0,0), cursor_target(0,0), 
         hytky_pos(ofGetWidth() / 2, ofGetHeight() /2) {
     
@@ -43,7 +43,7 @@ void ofApp::setup(){
     hytky_GUI.setup();
     server.setup();
     
-    H.asetaJousivakio(10);    
+    H.asetaJousivakio(3);
 }
 
 //--------------------------------------------------------------
@@ -77,12 +77,7 @@ void ofApp::update(){
 
     //lasketaan hytky
     ofVec2f cursor_v = (cursor_target - cursor_pos);
-    if(cursor_v.length() > 250) {
-        cursor_pos = cursor_target;
-    }
-    else {
-        cursor_pos += cursor_v * 0.15;
-    }
+    cursor_pos += cursor_v * 0.9;
 
     H.repulsor.keskipiste = vec2((cursor_pos.x - hytky_pos.x) / hytky_scale, (cursor_pos.y - hytky_pos.y) / hytky_scale);
     
@@ -92,8 +87,8 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
         
-    ofSetColor(20,50,100);
-    ofDrawCircle(cursor_pos.x, cursor_pos.y, 100);
+    //ofSetColor(20,50,100);
+    //ofDrawCircle(cursor_pos.x, cursor_pos.y, 100);
        
     //piirretään jouset
     int layer = drawnLayer;
@@ -151,6 +146,10 @@ void ofApp::keyPressed(int key){
         drawnLayer ++;
         if(drawnLayer >= H.springLayers)
             drawnLayer = 0;
+    }
+    
+    else if (key == ' ') {
+        H.extending = !H.extending;
     }
     
 }

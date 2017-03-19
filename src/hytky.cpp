@@ -61,7 +61,7 @@ vec2 circle::vektoriSisaltaReunalle(const vec2& p) {
 
 
 //hytkyjen globaalit ominaisuudet:
-vec2    hytky::gravity      = vec2(0,1);
+vec2    hytky::gravity      = vec2(0, 0.5);
 int     hytky::physicsIterations = 10;
 rectangle hytky::huone      = rectangle(-200, -150, 400, 300);
 const float hytky::halkaisija   = 150;
@@ -91,7 +91,7 @@ void hytky::luoJouset(int layers) {
         float r_min = r[l] - margin;
         float r_max = r[l] + margin;
         
-        std::cout << r_min << ", " << r_max << "\n";
+        //std::cout << r_min << ", " << r_max << "\n";
         
         for(int i=0; i< pisteet.size(); i++) {
             for(int j=0; j<pisteet.size(); j++) {
@@ -111,7 +111,7 @@ void hytky::luoJouset(int layers) {
                     }
                     //jos jousta ei ollut, luodaan se
                     if(!found) {
-                        uusiLayer.push_back(jousi(pisteet[i], pisteet[j], initial_k) ); //TODO: jousivakiosta (initial_k) säädettävä parametri
+                        uusiLayer.push_back(jousi(pisteet[i], pisteet[j], initial_k / (l+1) ) ); //TODO: jousivakiosta (initial_k) säädettävä parametri
                     }
                 }
             }
@@ -121,8 +121,9 @@ void hytky::luoJouset(int layers) {
         std::cout << "Luotiin kerros " << l << ", " << uusiLayer.size() << " jousta\n";
     }
 
-    for(int i= 0; i<pisteet.size(); i++)
-        keskiJouset.push_back(jousi(pisteet[i], initialPoints[i], initial_k * 0.01));
+    //'keskijouset' pitävät koko hytkyä ruudun keskellä
+    //for(int i= 0; i<pisteet.size(); i++)
+    //    keskiJouset.push_back(jousi(pisteet[i], initialPoints[i], initial_k * 0.05));
     
 
 }
@@ -130,7 +131,7 @@ void hytky::luoJouset(int layers) {
 
 hytky::hytky(int sivu, int springLayers_) : hytkynSivu(sivu), springLayers(springLayers_) {
     
-    repulsor = circle(0,0,50);
+    repulsor = circle(0, 0, 100);
     
     if(hytkynSivu < 0) hytkynSivu = 0;
     
@@ -203,10 +204,10 @@ void hytky::asetaJousivakio(float new_k) {
     for(int layer = 0; layer < jouset.size(); layer++) {
         for(int i=0; i<jouset[layer].size(); i++) {
             
-            //float k = k_per_l * (jouset.size() - layer);
-            float k = new_k;
+            float k = k_per_l * (jouset.size() - layer);
+            //float k = new_k;
             jouset[layer][i].jousivakio = k;
-            std::cout << "set stiffness " << layer << " : " << k << "\n";
+            //std::cout << "set stiffness " << layer << " : " << k << "\n";
         }
     }
 }
@@ -224,16 +225,37 @@ void hytky::step() {
             pisteet[i].laskeVoimat();
             
             //repulsio
-            pisteet[i].F += (repulsor.vektoriSisaltaReunalle(pisteet[i].paikka) * piste::m / physicsIterations).getSquared();
-
+            //pisteet[i].F += (repulsor.vektoriSisaltaReunalle(pisteet[i].paikka) * piste::m / physicsIterations).getSquared();
+            
             for(unsigned int j = 0; j < pisteet.size(); j++) {
                 if(i!=j)  pisteet[i].laskePaine(pisteet[j].paikka);
             }
         }
         
         for(unsigned int i = 0; i < jouset.size(); i++) {
-            for(unsigned int j = 0; j < jouset[i].size(); j++)
+            for(unsigned int j = 0; j < jouset[i].size(); j++) {
+                
+                //tehdään "repulsorilla" eli hiirellä ohjattavalla ympyrällä ekstensio
+                //ekstension määrä riippuu siitä onko jousen alku- ja loppupää repulsorin sisällä
+                float repulsion = 0;
+                if(repulsor.onkoSisalla(haeJousenAlku(j, i) ) )
+                    repulsion += repulsor.vektoriSisaltaReunalle(haeJousenAlku(j, i)).lengthSquared() / (repulsor.r*repulsor.r);
+                if(repulsor.onkoSisalla(haeJousenLoppu(j, i) ) )
+                    repulsion += repulsor.vektoriSisaltaReunalle(haeJousenLoppu(j, i)).lengthSquared() / (repulsor.r*repulsor.r);
+                repulsion /= 2;
+                repulsion *= 0.02;
+                
+                //jos extending==true pullistetaan, jos false, supistetaan
+                if(extending == false) repulsion *= -1;
+                
+                jouset[i][j].extend(repulsion);
+
+                //rentoutetaan kaikkia jousia
+                jouset[i][j].relax(0.005);
+                
+                //lasketaan venymät ja voimat niiden mukaan
                 jouset[i][j].laskeVoimat();
+            }
         }
        
         for(unsigned int i=0; i<keskiJouset.size(); i++)
@@ -325,6 +347,7 @@ hytky::jousi::jousi() {
     pisteet[1] = NULL;
     jousivakio = 1;
     lepopituus = 0;
+    ekstensio = 1;
 } 
 
 
@@ -332,6 +355,8 @@ hytky::jousi::jousi(piste& A, piste& B, float k) {
     pisteet[0] = &A;
     pisteet[1] = &B;
     jousivakio = k;
+    ekstensio = 1;
+    
     if(pisteet[0] != NULL && pisteet[1] != NULL)
         lepopituus = (pisteet[0]->paikka - pisteet[1]->paikka).length();
     else 
@@ -341,23 +366,14 @@ hytky::jousi::jousi(piste& A, piste& B, float k) {
 
 void hytky::jousi::laskeVoimat() {
     
-    static float damageFactor = 3;
-    
     if(pisteet[0] != NULL && pisteet[1] != NULL) {
         vec2 ero = pisteet[1]->paikka - pisteet[0]->paikka;
-        vec2 venyma = ero.getScaled(lepopituus - ero.length() );
+        vec2 venyma = ero.getScaled( (lepopituus * ekstensio) - ero.length() );
         
         vec2 F = venyma.getSquared() * jousivakio;
         
         pisteet[1]->F += F;
         pisteet[0]->F -= F;    
-        //kuluminen:
-        /*
-        if(venyma.length() > lepopituus * damageFactor) {
-            lepopituus += venyma.length() * 0.01;
-            jousivakio *= 0.975;
-        }
-         */
     }
 }
 
@@ -369,3 +385,18 @@ float hytky::jousi::getStress() {
     
     return stress.length();
 }
+
+
+void hytky::jousi::extend(float amount) {
+    ekstensio += amount;
+    if(ekstensio > 2) ekstensio = 2;
+    if(ekstensio < 0.5) ekstensio = 0.5;
+}
+
+
+void hytky::jousi::relax(float amount) {
+    if(ekstensio > 1-amount) ekstensio -= amount;
+    else if (ekstensio < 1+amount) ekstensio += amount;
+    else ekstensio = 1;
+}
+

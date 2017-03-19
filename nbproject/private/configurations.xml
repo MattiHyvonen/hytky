@@ -4,12 +4,6 @@
     <df root="." name="0">
       <df name="bin">
         <df name="data">
-          <df name="frames">
-          </df>
-          <df name="frames 0">
-          </df>
-          <df name="frames 1">
-          </df>
         </df>
         <df name="libs">
         </df>
