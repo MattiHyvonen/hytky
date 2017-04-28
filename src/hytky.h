@@ -3,7 +3,7 @@
 #include <vector>
 #include <vector2.h>
 #include <string>
-
+#include "hytkyClient.h"
 
 class rectangle{
 public:
@@ -29,7 +29,7 @@ public:
 };
 
 
-class hytky {
+class hytky: public hytkyClient {
 private:
 
     class piste;  //hytkyn partikkeli
@@ -40,6 +40,7 @@ private:
     
     std::vector<std::vector<jousi> > jouset; //kaikki pisteiden välillä olevat jouset
     std::vector<jousi> keskiJouset; //jouset jotka pitävät hytkyä keskellä
+    std::vector<jousi> tuntoJouset;
     
     void luoJouset(int layers = 1);
        
@@ -73,7 +74,10 @@ public:
       
     void step(); //laske voimat ja liikuta pisteitä
     std::string kerro(); //palauttaa tietoja
- 
+    void extend(float x,float y, float force);
+    void handleMessages(ofxOscMessage msg);
+    
+    
 };
 
 

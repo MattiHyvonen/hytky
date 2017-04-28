@@ -46,7 +46,7 @@ class ofApp : public ofBaseApp {
                 
                 GUI hytky_GUI;
                 bool GUI_shown = false;
-                simpleServer server;
+                //simpleServer server;
                 
                 randomPalette paletti;
                 int drawnLayer = 0;

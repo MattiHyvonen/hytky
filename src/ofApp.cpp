@@ -30,7 +30,7 @@ std::string getFilename() {
 }
 
 
-ofApp::ofApp() : H(4, 2),
+ofApp::ofApp() : H(7, 2),
         cursor_pos(0,0), cursor_target(0,0), 
         hytky_pos(ofGetWidth() / 2, ofGetHeight() /2) {
     
@@ -41,7 +41,9 @@ ofApp::ofApp() : H(4, 2),
 void ofApp::setup(){
     ofSetBackgroundColor(0, 0, 0);
     hytky_GUI.setup();
-    server.setup();
+    //server.setup();
+    
+    H.setup("192.168.1.66");
     
     H.asetaJousivakio(3);
 }
@@ -51,35 +53,22 @@ void ofApp::update(){
     
     //katso tiedot GUI:sta ja päivitä serveriin
     hytky_GUI.update();    
-    
-    server.port = hytky_GUI.port;
-    server.letsRun = hytky_GUI.run;
-    server.update();
-    
+            
     //tarkista tiedot serveristä ja päivitä GUI
-    if(server.isRunning() ) {        
-        hytky_GUI.clearConsole();
-        hytky_GUI.print("Server is running on port " + ofToString(server.port));
-        if(!server.connectedIPs.empty()) {
-            hytky_GUI.print("Now sending to clients: ");
-            hytky_GUI.print(server.connectedIPs);
-        }
-        else {
-            hytky_GUI.print("No clients connected");
-        }
-        
-        //lähetetään jousista tietoja
-        server.send(H.kerro() );
-    }
+    //hytky_GUI.clearConsole();
+    //hytky_GUI.print("Server is running on port " + ofToString(server.port));
+    //hytky_GUI.print("Now sending to clients: ");
+    //hytky_GUI.print(server.connectedIPs);
+    //hytky_GUI.print("No clients connected");        
+    //server.send(H.kerro() );
 
-    hytky_GUI.run = server.isRunning();
-
+    //hytky_GUI.run = server.isRunning();    
 
     //lasketaan hytky
     ofVec2f cursor_v = (cursor_target - cursor_pos);
     cursor_pos += cursor_v * 0.9;
 
-    H.repulsor.keskipiste = vec2((cursor_pos.x - hytky_pos.x) / hytky_scale, (cursor_pos.y - hytky_pos.y) / hytky_scale);
+    //H.repulsor.keskipiste = vec2((cursor_pos.x - hytky_pos.x) / hytky_scale, (cursor_pos.y - hytky_pos.y) / hytky_scale);
     
     H.step();
 }
@@ -93,10 +82,15 @@ void ofApp::draw(){
     //piirretään jouset
     int layer = drawnLayer;
     ofSetColor(paletti.getColor(layer));
-    for(int j=0; j<H.joustenMaara(layer) ; j++) {
+    
+    for(int j=0; j < H.joustenMaara(layer); j++) {
+        //std::cout << "layer " << layer << ", " << H.joustenMaara(layer) << " jousta \n";
         vec2 alku = H.haeJousenAlku(j, layer);
         vec2 loppu = H.haeJousenLoppu(j, layer);
 
+        //std::cout << "(" << alku.x * hytky_scale + hytky_pos.x << ", " << alku.y * hytky_scale + hytky_pos.y << ")"
+        //        << " --> " <<  "(" << loppu.x * hytky_scale + hytky_pos.x << ", " << loppu.y * hytky_scale + hytky_pos.y << ")\n";
+        
         ofDrawLine(alku.x * hytky_scale + hytky_pos.x, 
                 alku.y * hytky_scale + hytky_pos.y, 
                 loppu.x * hytky_scale + hytky_pos.x, 
@@ -144,7 +138,7 @@ void ofApp::keyPressed(int key){
     
     else if(key == '+') {
         drawnLayer ++;
-        if(drawnLayer >= H.springLayers)
+        if(drawnLayer > H.springLayers)
             drawnLayer = 0;
     }
     

@@ -61,18 +61,19 @@ vec2 circle::vektoriSisaltaReunalle(const vec2& p) {
 
 
 //hytkyjen globaalit ominaisuudet:
-vec2    hytky::gravity      = vec2(0, 0.5);
-int     hytky::physicsIterations = 10;
+vec2    hytky::gravity      = vec2(0, 0.2);
+int     hytky::physicsIterations = 8;
 rectangle hytky::huone      = rectangle(-200, -150, 400, 300);
 const float hytky::halkaisija   = 150;
 
 
 void hytky::luoJouset(int layers) {
-    
+        
     if(layers > 4) layers = 4;
     if(layers < 1) layers = 1;
         
     float halkaisijaPisteina = 2 * hytkynSivu - 1;
+    //lähimpien pisteiden välimatka fysikaalisessa avaruudessa
     float pistevali = halkaisija / halkaisijaPisteina;
     
     float margin = 0.05;
@@ -120,7 +121,55 @@ void hytky::luoJouset(int layers) {
         jouset.push_back(uusiLayer);
         std::cout << "Luotiin kerros " << l << ", " << uusiLayer.size() << " jousta\n";
     }
+    
+    //luodaan tuntojouset:
+    
+    //etsitään keskipiste
+    float min_d2 = pisteet[0].paikka.lengthSquared();
+    int center_i = 0;    
+    for(int i=0; i<pisteet.size(); i++) {
+        float d = pisteet[i].paikka.lengthSquared();
+        if(d < min_d2) {
+            min_d2 = d;
+            center_i = i;
+        }
+    }
+    
+    std::vector<int> inner;
+    std::vector<int> outer;
+    //std::vector<piste*> branches;
+    
+    //luodaan jouset keskipisteestä kulmiin kahdessa osassa
+    
+    float s = (float)(hytkynSivu-1) * pistevali;
+    float inner_r = s * (3.0/6);
+    float outer_r = s;
+    float branch_r = s * (1.0/6);
+    
+    margin = pistevali * 0.1;
+    
+    //jaetaan pisteet väliaikaisiin vektoreihin
+    for(int j=0; j<pisteet.size(); j++) {
+        if(center_i==j) continue;
 
+        float ero = (pisteet[j].paikka - pisteet[center_i].paikka).length();
+         
+        if(ero < outer_r + margin && ero > outer_r - margin)
+             outer.push_back(j);
+
+        if(ero < inner_r + margin && ero > inner_r - margin)
+             inner.push_back(j);         
+    }
+    
+    //tehdään jouset pisteiden mukaan
+    //keskeltä -> inner
+    //inner -> outer
+    for(int i=0; i<inner.size(); i++) 
+        tuntoJouset.push_back(jousi(pisteet[center_i], pisteet[inner[i] ], 0.01) );
+    
+    for(int i=0; i < inner.size() && outer.size() >= inner.size(); i++)
+        tuntoJouset.push_back(jousi(pisteet[inner[i] ], pisteet[outer[i] ], 0.01) );
+    
     //'keskijouset' pitävät koko hytkyä ruudun keskellä
     //for(int i= 0; i<pisteet.size(); i++)
     //    keskiJouset.push_back(jousi(pisteet[i], initialPoints[i], initial_k * 0.05));
@@ -133,6 +182,7 @@ hytky::hytky(int sivu, int springLayers_) : hytkynSivu(sivu), springLayers(sprin
     
     repulsor = circle(0, 0, 100);
     
+    if( (int)hytkynSivu % 2 == 0) hytkynSivu++;    
     if(hytkynSivu < 0) hytkynSivu = 0;
     
     int halkaisijaPisteina = 2 * hytkynSivu - 1;
@@ -185,15 +235,18 @@ int hytky::size() {
 
 
 int hytky::joustenMaara(int layer) {
-    return jouset[layer].size();
+    if(layer >= springLayers) return tuntoJouset.size();
+    else return jouset[layer].size();
 }
     
 vec2 hytky::haeJousenAlku(int i, int layer){
-    return jouset[layer][i].pisteet[0]->paikka;
+    if(layer >= springLayers) return tuntoJouset[i].pisteet[0]->paikka;
+    else return jouset[layer][i].pisteet[0]->paikka;
 }
 
 vec2 hytky::haeJousenLoppu(int i, int layer){
-    return jouset[layer][i].pisteet[1]->paikka;
+    if(layer >= springLayers) return tuntoJouset[i].pisteet[1]->paikka;
+    else return jouset[layer][i].pisteet[1]->paikka;
 }
 
 
@@ -270,34 +323,13 @@ void hytky::step() {
 
 
 std::string hytky::kerro() {
-    static float viime_keskiarvo; //optimoidaan käyttämällä edellistä keskiarvoa varianssin laskemiseen
-    static float viimeArvot[100]; //keskiarvot viime 50 askeleelta
-    static int laskuri = 0;
-
-    float keskiarvo = 0;
-    float varianssi = 0;
+    std::string result = "/body/sense/stress ";
     
-    for(int i=0; i < jouset[0].size(); i++) {
-        float stress = jouset[0][i].getStress();
-        keskiarvo += stress;
-        varianssi += pow(stress - viime_keskiarvo, 2);
+    for(int i=0; i < tuntoJouset.size(); i++) {
+        result = result + std::to_string(tuntoJouset[i].getStress() * 10) + " ";
     }
-    keskiarvo = keskiarvo / jouset[0].size();
-    varianssi = varianssi / jouset[0].size();
-    viime_keskiarvo = keskiarvo;
     
-    viimeArvot[laskuri] = keskiarvo;
-    laskuri++;
-    if(laskuri > 99) laskuri = 0;
-    
-    //lasketaan viime arvojen erojen summa tämänhetkisestä keskiarvosta eli värähtely
-    float varahtely = 0;
-    for(int i=0; i<100; i++) {
-        varahtely += pow(viimeArvot[i] - viime_keskiarvo, 2);
-    }
-    varahtely = varahtely / 100;
-    
-    return std::to_string(keskiarvo) + ", " + std::to_string(varianssi) + ", " + std::to_string(varahtely);
+    return result;
 }
 
 
@@ -400,3 +432,26 @@ void hytky::jousi::relax(float amount) {
     else ekstensio = 1;
 }
 
+
+void hytky::handleMessages(ofxOscMessage msg) {
+
+    //yhteysrutiinit
+    olentoClient::handleMessages(msg);
+    
+    std::vector<std::string> address = ofSplitString(msg.getAddress(),"/",true,false);
+    
+    //paketin muoto: /*/expression/extend <x> <y> <force>
+    if(address.size() > 2 && address[1] == "expression") {
+        if(address[2] == "extend") {
+            float x = msg.getArgAsFloat(0);
+            float y = msg.getArgAsFloat(1);
+            float f = msg.getArgAsFloat(2);
+            extend(x,y,f);
+        }
+    }
+}
+
+void hytky::extend(float x, float y, float force) {
+    repulsor.keskipiste = vec2(  pisteet[18].paikka.x + x*80,pisteet[18].paikka.y + y*80);
+    repulsor.r = force*80;    
+}
